@@ -8,36 +8,43 @@
            [org.apache.iceberg.catalog Namespace TableIdentifier]
            [org.apache.iceberg SchemaParser PartitionSpecParser PartitionSpec]))
 
-(def catalog
+(defonce ^:dynamic *catalog* nil)
+
+(defn initialize-catalog []
   (doto (S3TablesCatalog.)
     (.initialize "s3-tables-catalog"
                  {"warehouse" "s3://your-bucket/warehouse"
                   "region" "us-west-2"
                   "aws.region" "us-west-2"})))
 
+(defn get-catalog []
+  (if *catalog*
+    *catalog*
+    (alter-var-root #'*catalog* (constantly (initialize-catalog)))))
+
 (defn get-config []
   {:catalog-version "1.5.0"
    :catalog-impl "software.amazon.s3tables.iceberg.S3TablesCatalog"
-   :warehouse (.name catalog)})
+   :warehouse (.name (get-catalog))})
 
 (defn create-namespace [namespace-str properties]
   (let [ns (Namespace/of (into-array String (clojure.string/split namespace-str #"\.")))
-        _ (.createNamespace catalog ns properties)]
+        _ (.createNamespace (get-catalog) ns properties)]
     {:namespace namespace-str
      :properties properties}))
 
 (defn list-namespaces [parent]
   (let [parent-ns (when parent
                     (Namespace/of (into-array String (clojure.string/split parent #"\."))))
-        namespaces (.listNamespaces catalog parent-ns)]
+        namespaces (.listNamespaces (get-catalog) parent-ns)]
     (map (fn [ns]
            {:namespace (clojure.string/join "." (.levels ns))
-            :metadata (.loadNamespaceMetadata catalog ns)})
+            :metadata (.loadNamespaceMetadata (get-catalog) ns)})
          namespaces)))
 
 (defn load-namespace [namespace-str]
   (let [ns (Namespace/of (into-array String (clojure.string/split namespace-str #"\.")))
-        metadata (.loadNamespaceMetadata catalog ns)]
+        metadata (.loadNamespaceMetadata (get-catalog) ns)]
     {:namespace namespace-str
      :metadata metadata}))
 
@@ -48,7 +55,7 @@
         partition-spec (if spec
                          (PartitionSpecParser/fromJson iceberg-schema (json/generate-string spec))
                          (PartitionSpec/unpartitioned))
-        table (.createTable catalog identifier iceberg-schema partition-spec (or properties {}))]
+        table (.createTable (get-catalog) identifier iceberg-schema partition-spec (or properties {}))]
     {:namespace namespace
      :name name
      :schema (json/parse-string (SchemaParser/toJson (.schema table)) true)
@@ -59,7 +66,7 @@
 (defn list-tables [namespace]
   (let [ns (when namespace
              (Namespace/of (into-array String (clojure.string/split namespace #"\."))))
-        tables (.listTables catalog ns)]
+        tables (.listTables (get-catalog) ns)]
     (map (fn [table]
            {:namespace (clojure.string/join "." (.levels (.namespace table)))
             :name (.name table)})
@@ -69,7 +76,7 @@
   (let [identifier (TableIdentifier/of
                     (Namespace/of (into-array String (clojure.string/split namespace #"\.")))
                     name)
-        table (.loadTable catalog identifier)]
+        table (.loadTable (get-catalog) identifier)]
     {:namespace namespace
      :name name
      :format-version (get (.properties table) "format-version" "1")
@@ -79,7 +86,7 @@
   (let [identifier (TableIdentifier/of
                     (Namespace/of (into-array String (clojure.string/split namespace #"\.")))
                     name)]
-    (.dropTable catalog identifier purge)
+    (.dropTable (get-catalog) identifier purge)
     nil))
 
 (def app
