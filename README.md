@@ -1,11 +1,7 @@
 # S3 Tables Catalog Clojure Service
 
-<<<<<<< Updated upstream
 [![CI](https://github.com/fuziontech/s3-tables-catalog-clj/actions/workflows/ci.yml/badge.svg)](https://github.com/james/s3-tables-catalog-clj/actions/workflows/ci.yml)
-=======
-[![CI](https://github.com/james/s3-tables-catalog-clj/actions/workflows/ci.yml/badge.svg)](https://github.com/james/s3-tables-catalog-clj/actions/workflows/ci.yml)
-[![Docker](https://github.com/james/s3-tables-catalog-clj/actions/workflows/docker.yml/badge.svg)](https://github.com/james/s3-tables-catalog-clj/actions/workflows/docker.yml)
->>>>>>> Stashed changes
+[![Docker](https://github.com/fuziontech/s3-tables-catalog-clj/actions/workflows/docker.yml/badge.svg)](https://github.com/james/s3-tables-catalog-clj/actions/workflows/docker.yml)
 
 A Clojure REST service that provides an Iceberg REST Catalog interface using AWS S3 Tables Catalog.
 
