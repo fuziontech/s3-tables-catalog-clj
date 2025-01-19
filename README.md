@@ -1,7 +1,7 @@
 # S3 Tables Catalog Clojure Service
 
-[![CI](https://github.com/fuziontech/s3-tables-catalog-clj/actions/workflows/ci.yml/badge.svg)](https://github.com/james/s3-tables-catalog-clj/actions/workflows/ci.yml)
-[![Docker](https://github.com/fuziontech/s3-tables-catalog-clj/actions/workflows/docker.yml/badge.svg)](https://github.com/james/s3-tables-catalog-clj/actions/workflows/docker.yml)
+[![CI](https://github.com/fuziontech/s3-tables-catalog-clj/actions/workflows/ci.yml/badge.svg)](https://github.com/fuziontech/s3-tables-catalog-clj/actions/workflows/ci.yml)
+[![Docker](https://github.com/fuziontech/s3-tables-catalog-clj/actions/workflows/docker.yml/badge.svg)](https://github.com/fuziontech/s3-tables-catalog-clj/actions/workflows/docker.yml)
 
 A Clojure REST service that provides an Iceberg REST Catalog interface using AWS S3 Tables Catalog.
 
@@ -45,7 +45,36 @@ Edit `src/s3_tables_catalog_clj/core.clj` and update the warehouse location:
              "region" "us-west-2"})
 ```
 
-## Running the Service
+## Development
+
+### Using Docker Compose
+
+The easiest way to develop is using Docker Compose:
+
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit `.env` with your AWS configuration:
+   ```bash
+   WAREHOUSE_BUCKET=s3://your-bucket/warehouse
+   ```
+
+3. Start the development environment:
+   ```bash
+   docker compose up
+   ```
+
+This will:
+- Mount your source code for live reloading
+- Cache Maven dependencies
+- Mount your AWS credentials (if using `~/.aws`)
+- Expose ports for the API (3000) and nREPL (9001)
+
+You can connect your IDE to the nREPL server on port 9001 for interactive development.
+
+### Running Locally
 
 To start the service:
 ```bash
@@ -54,7 +83,9 @@ AWS_REGION=us-west-2 clj -M:run
 
 The service will start on port 3000.
 
-## Running with Docker
+## Running in Production
+
+### Using Docker
 
 You can run the service using Docker:
 
