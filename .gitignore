@@ -1,0 +1,22 @@
+# Clojure
+.cpcache/
+.lein-*
+.nrepl-port
+.clj-kondo/.cache
+target/
+
+# IDE
+.idea/
+*.iml
+.calva/
+.lsp/
+.vscode/
+
+# Mac
+.DS_Store
+
+# Logs
+*.log
+
+# Local config
+.env
