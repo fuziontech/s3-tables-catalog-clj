@@ -1,5 +1,7 @@
 # S3 Tables Catalog Clojure Service
 
+[![CI](https://github.com/james/s3-tables-catalog-clj/actions/workflows/ci.yml/badge.svg)](https://github.com/james/s3-tables-catalog-clj/actions/workflows/ci.yml)
+
 A Clojure REST service that provides an Iceberg REST Catalog interface using AWS S3 Tables Catalog.
 
 ## Prerequisites
