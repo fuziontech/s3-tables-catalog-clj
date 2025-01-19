@@ -1,6 +1,11 @@
 # S3 Tables Catalog Clojure Service
 
+<<<<<<< Updated upstream
 [![CI](https://github.com/fuziontech/s3-tables-catalog-clj/actions/workflows/ci.yml/badge.svg)](https://github.com/james/s3-tables-catalog-clj/actions/workflows/ci.yml)
+=======
+[![CI](https://github.com/james/s3-tables-catalog-clj/actions/workflows/ci.yml/badge.svg)](https://github.com/james/s3-tables-catalog-clj/actions/workflows/ci.yml)
+[![Docker](https://github.com/james/s3-tables-catalog-clj/actions/workflows/docker.yml/badge.svg)](https://github.com/james/s3-tables-catalog-clj/actions/workflows/docker.yml)
+>>>>>>> Stashed changes
 
 A Clojure REST service that provides an Iceberg REST Catalog interface using AWS S3 Tables Catalog.
 
@@ -52,6 +57,35 @@ AWS_REGION=us-west-2 clj -M:run
 ```
 
 The service will start on port 3000.
+
+## Running with Docker
+
+You can run the service using Docker:
+
+```bash
+docker run -p 3000:3000 \
+  -e AWS_REGION=us-west-2 \
+  -e AWS_ACCESS_KEY_ID=your_access_key \
+  -e AWS_SECRET_ACCESS_KEY=your_secret_key \
+  fuziontech/s3-tables-catalog-clj:latest
+```
+
+Or using AWS credentials file:
+
+```bash
+docker run -p 3000:3000 \
+  -e AWS_REGION=us-west-2 \
+  -v ~/.aws:/root/.aws \
+  fuziontech/s3-tables-catalog-clj:latest
+```
+
+### Building the Docker Image Locally
+
+To build the Docker image locally:
+
+```bash
+docker build -t s3-tables-catalog-clj .
+```
 
 ## API Endpoints
 
