@@ -1,21 +1,44 @@
 version: "3.8"
 
 services:
-  app:
+  s3-tables-rest-catalog:
     build:
       context: .
-      target: builder # Use the builder stage for development
+      target: runtime # Use the runtime stage
     ports:
       - "3000:3000" # API port
       - "9001:9001" # nREPL port
     volumes:
-      - .:/build # Mount source code for live reloading
-      - ~/.m2:/root/.m2 # Cache Maven dependencies
       - ~/.aws:/root/.aws:ro # Mount AWS credentials (read-only)
     environment:
-      - AWS_REGION=us-west-2
-      - WAREHOUSE_BUCKET=s3://your-bucket/warehouse # Override in .env
-    command: clj -M:run
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - WAREHOUSE_BUCKET=${WAREHOUSE_BUCKET}
+    command: java -jar s3-tables-catalog-clj.jar
     # Keep container running for development
     stdin_open: true
     tty: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+
+  pyspark-example:
+    build:
+      context: ./examples/pyspark
+    volumes:
+      - ~/.aws:/root/.aws:ro # Mount AWS credentials (read-only)
+    environment:
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    depends_on:
+      s3-tables-rest-catalog:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://s3-tables-rest-catalog:3000"]
+      interval: 5s
+      timeout: 10s
+      retries: 3

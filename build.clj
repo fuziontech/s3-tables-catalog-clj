@@ -16,8 +16,12 @@
                :target-dir class-dir})
   (b/compile-clj {:basis basis
                   :src-dirs ["src"]
-                  :class-dir class-dir})
+                  :class-dir class-dir
+                  :compile-opts {:direct-linking true
+                                 :elide-meta [:doc :file :line :added]
+                                 :disable-locals-clearing false}})
   (b/uber {:class-dir class-dir
            :uber-file uber-file
            :basis basis
-           :main 's3-tables-catalog-clj.core}))
+           :main 's3-tables-catalog-clj.core
+           :manifest {"Main-Class" "s3_tables_catalog_clj.core"}}))

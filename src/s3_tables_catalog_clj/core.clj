@@ -6,7 +6,8 @@
             [cheshire.core :as json])
   (:import [software.amazon.s3tables.iceberg S3TablesCatalog]
            [org.apache.iceberg.catalog Namespace TableIdentifier]
-           [org.apache.iceberg SchemaParser PartitionSpecParser PartitionSpec]))
+           [org.apache.iceberg SchemaParser PartitionSpecParser PartitionSpec])
+  (:gen-class))
 
 (defonce ^:dynamic *catalog* nil)
 
@@ -95,39 +96,58 @@
     [["/api"
       ["/v1"
        ["/config"
-        {:get {:handler (fn [_] {:status 200 :body (get-config)})}}]
+        {:get {:handler (fn [_]
+                          {:status 200
+                           :headers {"Content-Type" "application/json"}
+                           :body (json/generate-string (get-config))})}}]
 
        ["/namespaces"
         {:get {:handler (fn [{{:keys [parent]} :query-params}]
                           {:status 200
-                           :body (list-namespaces parent)})}
+                           :headers {"Content-Type" "application/json"}
+                           :body (json/generate-string (list-namespaces parent))})}
          :post {:handler (fn [{{:keys [namespace properties]} :body-params}]
                            {:status 200
-                            :body (create-namespace namespace properties)})}}]
+                            :headers {"Content-Type" "application/json"}
+                            :body (json/generate-string (create-namespace namespace properties))})}}]
 
        ["/namespaces/:namespace"
         {:get {:handler (fn [{{:keys [namespace]} :path-params}]
                           {:status 200
-                           :body (load-namespace namespace)})}}]
+                           :headers {"Content-Type" "application/json"}
+                           :body (json/generate-string (load-namespace namespace))})}}]
 
        ["/tables"
         {:get {:handler (fn [{{:keys [namespace]} :query-params}]
                           {:status 200
-                           :body (list-tables namespace)})}
+                           :headers {"Content-Type" "application/json"}
+                           :body (json/generate-string (list-tables namespace))})}
          :post {:handler (fn [{:keys [body-params]}]
                            {:status 200
-                            :body (create-table body-params)})}}]
+                            :headers {"Content-Type" "application/json"}
+                            :body (json/generate-string (create-table body-params))})}}]
 
        ["/tables/:namespace/:table"
         {:get {:handler (fn [{{:keys [namespace table]} :path-params}]
                           {:status 200
-                           :body (get-table namespace table)})}
+                           :headers {"Content-Type" "application/json"}
+                           :body (json/generate-string (get-table namespace table))})}
          :delete {:handler (fn [{{:keys [namespace table]} :path-params
                                  {:keys [purge]} :query-params}]
                              {:status 200
-                              :body (drop-table namespace table (Boolean/valueOf purge))})}}]]]]
+                              :headers {"Content-Type" "application/json"}
+                              :body (json/generate-string (drop-table namespace table (Boolean/valueOf purge)))})}}]]]
+     ["/" {:get {:handler (fn [_]
+                            {:status 200
+                             :headers {"Content-Type" "application/json"}
+                             :body (json/generate-string {:message "Welcome to S3 Tables Catalog API"
+                                                          :version "1.0.0"
+                                                          :endpoints ["/api/v1/config"
+                                                                      "/api/v1/namespaces"
+                                                                      "/api/v1/tables"]})})}}]]
     {:data {:muuntaja m/instance
-            :middleware [muuntaja/format-middleware]}})))
+            :middleware [muuntaja/format-middleware]}})
+   (ring/create-default-handler)))
 
 (defn -main [& args]
   (jetty/run-jetty #'app {:port 3000
